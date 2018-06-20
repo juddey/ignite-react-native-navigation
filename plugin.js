@@ -11,7 +11,7 @@ const add = async function (context) {
   // Learn more about context: https://infinitered.github.io/gluegun/#/context-api.md
   const { ignite, filesystem } = context
   const NPMPackage = await filesystem.read('package.json', 'json')
-  // const name = NPMPackage.name
+  const name = NPMPackage.name
 
   // Android Install
 
@@ -84,8 +84,56 @@ const add = async function (context) {
     insert: `    implementation project(':react-native-navigation')`
   })  
 
+  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
+    replace: `    compile "com.`,
+    insert: `    implementation "com.`,
+    force: true
+  })  
+
+  // android/gradle/wrapper/gradle-wrapper.properties
+  // 2.2 versions is not really much of a jump :scream:
+  ignite.patchInFile(`${process.cwd()}/android/gradle/wrapper/gradle-wrapper.properties`, {
+    replace: 'gradle-2.14.1-all.zip',
+    insert: 'gradle-4.4-all.zip',
+    force: true
+  })  
+
+  // android/gradle.properties
+  ignite.patchInFile(`${process.cwd()}/android/gradle.properties`, {
+    after: `android.useDeprecatedNdk=true`,
+    insert: `android.enableAapt2=false`
+  })  
+
+  // MainActivity.java
+  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
+    replace: 'import com.facebook.react.ReactActivity;',
+    insert: 'import com.reactnativenavigation.NavigationActivity;'
+  })
+  
+  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
+    replace: 'public class MainActivity extends ReactActivity {',
+    insert: 'public class MainActivity extends NavigationActivity {'
+  })
+  
+  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
+    delete: '@Override',
+  })
+
+  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
+    delete: '    protected String getMainComponentName() {'
+  })
+
+  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
+    delete: `return "${name.toLowerCase()}";`
+  })
+
+  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
+    delete: `    }`
+  })
+
   // install an NPM module and link it
-  //await ignite.addModule(NPM_MODULE_NAME, { link: true, version: NPM_MODULE_VERSION })
+  // Note to self. rn link writes to the pbxproj.
+  // await ignite.addModule(NPM_MODULE_NAME, { link: true, version: NPM_MODULE_VERSION })
 
   // Example of copying templates/ReactNativeNavigation to App/ReactNativeNavigation
   // if (!filesystem.exists(`${APP_PATH}/App/ReactNativeNavigation`)) {
