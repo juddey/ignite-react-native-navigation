@@ -16,7 +16,17 @@
     "shipit": "np"
   },
   "prettier": {
-    "semi": false
+    "semi": false,
+    "singleQuote": true
+  },
+  "standard": {
+    "globals": [
+      "beforeAll",
+      "afterAll",
+      "test",
+      "expect",
+      "describe"
+    ]
   },
   "url": "https://example.com/path/to/your/plugin",
   "repository": "juddey/ignite-react-native-navigation",

@@ -13,8 +13,5 @@ test('adds the proper npm module and component example', async () => {
 
   await plugin.add(context)
 
-  expect(addModule.calledWith('react-native-MODULENAME', { link: true })).toBe(true)
-  expect(addPluginComponentExample.calledWith('ReactNativeNavigationExample.js', {
-    title: 'ReactNativeNavigation Example'
-  })).toBe(true)
+  expect(addModule.calledWith('react-native-navigation', {version: '2.0.2362', link: true})).toBe()
 })
