@@ -1,0 +1,21 @@
+package com.<%= props.packageName %>;
+
+<%= props.imports %>
+
+import com.reactnativenavigation.NavigationApplication;
+
+public class MainApplication extends NavigationApplication {
+  
+  @Override
+  public boolean isDebug() {
+      // Make sure you are using BuildConfig from your own application
+      return BuildConfig.DEBUG;
+  }
+
+  @Override
+  public List<ReactPackage> createAdditionalReactPackages() {
+    return Arrays.<ReactPackage>asList(
+        <%= props.packages %>
+    );
+  }
+}

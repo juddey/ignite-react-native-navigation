@@ -1,7 +1,7 @@
 const sinon = require('sinon')
 const plugin = require('../plugin')
 
-test('adds the proper npm module and component example', async () => {
+test('adds the proper npm module, and patches relevant files', async () => {
   // spy on few things so we know they're called
   const addModule = sinon.spy()
   const addPluginComponentExample = sinon.spy()
@@ -9,11 +9,14 @@ test('adds the proper npm module and component example', async () => {
   const copy = sinon.spy()
   const read = sinon.spy()
   const name = 'ignite-react-native-navigation'
+  const file = sinon.spy()
+  const generate = sinon.spy()
 
   // mock a context
   const context = {
     ignite: { addModule, addPluginComponentExample, patchInFile },
-    filesystem: { copy, read }
+    filesystem: { copy, read, file },
+    template: { generate }
   }
 
   await plugin.add(context)
@@ -133,5 +136,19 @@ test('adds the proper npm module and component example', async () => {
     delete: `    }`
   })).toEqual(true)
 
-  expect(patchInFile.callCount).toEqual(21)
+  // iOS
+  expect(patchInFile.calledWith(`${process.cwd()}/ios/${name.toLowerCase()}/AppDelegate.m`, {
+    after: '#import <React/RCTBundleURLProvider.h>',
+    insert: '#import <ReactNativeNavigation/ReactNativeNavigation.h>'
+  })).toEqual(true)
+
+  expect(patchInFile.calledWith(`${process.cwd()}/ios/${name.toLowerCase()}/AppDelegate.m`, {
+    after: 'jsCodeLocation =',
+    insert: `  [ReactNativeNavigation bootstrap:jsCodeLocation launchOptions:launchOptions];`,
+    force: true
+  })).toEqual(true)
+
+  expect(patchInFile.callCount).toEqual(23)
+  expect(file.callCount).toEqual(3)
+  expect(generate.callCount).toEqual(1)
 })
