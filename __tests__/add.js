@@ -28,6 +28,11 @@ test('adds the proper npm module, and patches relevant files', async () => {
         mavenCentral()`
   })).toEqual(true)
 
+  expect(patchInFile.calledWith(`${process.cwd()}/android/settings.gradle`, {
+    after: `include ':app'`,
+    insert: `include ':react-native-navigation'\nproject(':react-native-navigation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-navigation/lib/android/app/')`
+  })).toEqual(true)
+
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
     after: `repositories {`,
     insert: `        google()
@@ -121,19 +126,19 @@ test('adds the proper npm module, and patches relevant files', async () => {
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: '@Override'
+    delete: '@Override\n'
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: '    protected String getMainComponentName() {'
+    delete: '    protected String getMainComponentName() {\n'
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: `return "${name.toLowerCase()}";`
+    delete: `return "${name.toLowerCase()}";\n`
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: `    }`
+    delete: `    }\n`
   })).toEqual(true)
 
   // iOS
@@ -148,7 +153,7 @@ test('adds the proper npm module, and patches relevant files', async () => {
     force: true
   })).toEqual(true)
 
-  expect(patchInFile.callCount).toEqual(23)
+  expect(patchInFile.callCount).toEqual(24)
   expect(file.callCount).toEqual(3)
-  expect(generate.callCount).toEqual(1)
+  expect(generate.callCount).toEqual(2)
 })

@@ -2,14 +2,37 @@ package com.<%= props.packageName %>;
 
 <%= props.imports %>
 
+import com.facebook.react.uimanager.UIImplementationProvider;
 import com.reactnativenavigation.NavigationApplication;
+import com.reactnativenavigation.react.NavigationReactNativeHost;
+import com.reactnativenavigation.react.SyncUiImplementation;
 
 public class MainApplication extends NavigationApplication {
-  
+
+  <% if (props.onCreate) { %>
+  @Override
+  <%= props.onCreate %> 
+  <% } %>  
+
   @Override
   public boolean isDebug() {
       // Make sure you are using BuildConfig from your own application
       return BuildConfig.DEBUG;
+  }
+
+  @Override
+  protected ReactNativeHost createReactNativeHost() {
+      return new NavigationReactNativeHost(this) {
+          @Override
+          protected String getJSMainModuleName() {
+              return "index";
+          }
+
+          @Override
+          protected UIImplementationProvider getUIImplementationProvider() {
+              return new SyncUiImplementation.Provider();
+          }
+      };
   }
 
   @Override

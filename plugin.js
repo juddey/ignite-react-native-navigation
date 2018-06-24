@@ -39,6 +39,12 @@ const add = async function (context) {
         mavenCentral()`
   })
 
+  // settings.gradle
+  ignite.patchInFile(`${process.cwd()}/android/settings.gradle`, {
+    after: `include ':app'`,
+    insert: `include ':react-native-navigation'\nproject(':react-native-navigation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-navigation/lib/android/app/')`
+  })
+
   // One line, plenty of grief ;)
   ignite.patchInFile(`${process.cwd()}/android/build.gradle`, {
     replace: `classpath 'com.android.tools.build:gradle:2.2.3'`,
@@ -180,6 +186,16 @@ const add = async function (context) {
     template,
     target,
     props,
+    directory: `${PLUGIN_PATH}/templates`
+  })
+
+  const template2 = `main.tsx.example.ejs`
+  const target2 = `/src/app/main.tsx.example`
+  const props2 = null
+  await context.template.generate({
+    template: template2,
+    target: target2,
+    props: props2,
     directory: `${PLUGIN_PATH}/templates`
   })
 
