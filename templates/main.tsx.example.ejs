@@ -7,7 +7,7 @@ export interface Props {
    * A simple text prop.
    */
   text?: string
-} 
+}
 
 class Simple extends React.Component<Props, object> {
   render() {
@@ -17,24 +17,26 @@ class Simple extends React.Component<Props, object> {
 }
 
 Navigation.registerComponent('simple', () => Simple)
-Navigation.setRoot({
-  root: {
-    stack: {
-      children: [{
-        component: {
-          name: 'simple',
-          passProps: {
-            text: 'Hello, I am Awesome'
+Navigation.events().registerAppLaunchedListener(() => {
+  Navigation.setRoot({
+    root: {
+      stack: {
+        children: [{
+          component: {
+            name: 'simple',
+            passProps: {
+              text: 'Hello, I am Awesome'
+            }
           }
-        }
-      }],
-      options: {
-        topBar: {
-          title: {
-            text: 'Welcome screen'
+        }],
+        options: {
+          topBar: {
+            title: {
+              text: 'Welcome screen'
+            }
           }
         }
       }
     }
-  }
+  })
 })
