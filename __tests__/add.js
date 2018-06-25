@@ -1,6 +1,8 @@
 const sinon = require('sinon')
 const plugin = require('../plugin')
 
+
+
 test('adds the proper npm module, and patches relevant files', async () => {
   // spy on few things so we know they're called
   const addModule = sinon.spy()
@@ -14,7 +16,7 @@ test('adds the proper npm module, and patches relevant files', async () => {
 
   // mock a context
   const context = {
-    ignite: { addModule, addPluginComponentExample, patchInFile },
+    ignite: { addModule, addPluginComponentExample, patchInFile, loadIgniteConfig: () => {}  },
     filesystem: { copy, read, file },
     template: { generate }
   }

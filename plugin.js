@@ -1,6 +1,6 @@
 // Ignite CLI plugin for ReactNativeNavigation
 // ----------------------------------------------------------------------------
-
+const helpers = require('./helpers')
 const NPM_MODULE_NAME = 'react-native-navigation'
 const NPM_MODULE_VERSION = '2.0.2362'
 const jetpack = require('fs-jetpack')
@@ -12,7 +12,7 @@ const name = NPM_PACKAGE.name
 const MAIN_APPLICATION_DOT_JAVA = process.env.NODE_ENV === 'test'
   ? jetpack.read('__tests__/MainApplication.fixture.java', 'utf8')
   : jetpack.read(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainApplication.java`, 'utf8')
-
+// In fact, I'm now quite fond of this method! :scream: 
 let APPDELEGATE_DOT_M = process.env.NODE_ENV === 'test'
   ? jetpack.read('__tests__/AppDelegate.fixture.m', 'utf8')
   : jetpack.read(`${process.cwd()}/ios/${name.toLowerCase()}/AppDelegate.m`, 'utf8')
@@ -23,129 +23,8 @@ const PLUGIN_PATH = __dirname
 const add = async function (context) {
   // Learn more about context: https://infinitered.github.io/gluegun/#/context-api.md
   const { ignite, filesystem } = context
-  // Android Install
-
-  // build.gradle
-  ignite.patchInFile(`${process.cwd()}/android/build.gradle`, {
-    before: `mavenLocal()`,
-    insert: `        google()
-        mavenCentral()`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/build.gradle`, {
-    after: `repositories {`,
-    insert: `        google()
-        mavenLocal()
-        mavenCentral()`
-  })
-
-  // settings.gradle
-  ignite.patchInFile(`${process.cwd()}/android/settings.gradle`, {
-    after: `include ':app'`,
-    insert: `include ':react-native-navigation'\nproject(':react-native-navigation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-navigation/lib/android/app/')`
-  })
-
-  // One line, plenty of grief ;)
-  ignite.patchInFile(`${process.cwd()}/android/build.gradle`, {
-    replace: `classpath 'com.android.tools.build:gradle:2.2.3'`,
-    insert: `classpath 'com.android.tools.build:gradle:3.0.1'`
-  })
-
-  // app/build.gradle
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `compileSdkVersion 23`,
-    insert: `compileSdkVersion 25`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `buildToolsVersion "23.0.1"`,
-    insert: `buildToolsVersion "27.0.3"`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `minSdkVersion 16`,
-    insert: `minSdkVersion 19`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `targetSdkVersion 22`,
-    insert: `targetSdkVersion 25`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `targetSdkVersion 25`,
-    insert: `missingDimensionStrategy "RNN.reactNativeVersion", "reactNative55"`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    before: `buildTypes {`,
-    insert: `    compileOptions {
-      sourceCompatibility JavaVersion.VERSION_1_8
-      targetCompatibility JavaVersion.VERSION_1_8
-    }`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `compile "com.android.support:appcompat-v7:23.0.1"`,
-    insert: `implementation "com.android.support:appcompat-v7:25.4.0"`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `compile fileTree(dir: "libs", include: ["*.jar"])`,
-    insert: `implementation fileTree(dir: "libs", include: ["*.jar"])`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    after: `implementation "com.android.support:appcompat-v7:25.4.0"`,
-    insert: `    implementation project(':react-native-navigation')`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `    compile "com.`,
-    insert: `    implementation "com.`,
-    force: true
-  })
-
-  // android/gradle/wrapper/gradle-wrapper.properties
-  // 2.2 versions is not really much of a jump :scream:
-  ignite.patchInFile(`${process.cwd()}/android/gradle/wrapper/gradle-wrapper.properties`, {
-    replace: 'gradle-2.14.1-all.zip',
-    insert: 'gradle-4.4-all.zip',
-    force: true
-  })
-
-  // android/gradle.properties
-  ignite.patchInFile(`${process.cwd()}/android/gradle.properties`, {
-    after: `android.useDeprecatedNdk=true`,
-    insert: `android.enableAapt2=false`
-  })
-
-  // MainActivity.java
-  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    replace: 'import com.facebook.react.ReactActivity;',
-    insert: 'import com.reactnativenavigation.NavigationActivity;'
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    replace: 'public class MainActivity extends ReactActivity {',
-    insert: 'public class MainActivity extends NavigationActivity {'
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: '@Override\n'
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: '    protected String getMainComponentName() {\n'
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: `return "${name.toLowerCase()}";\n`
-  })
-
-  ignite.patchInFile(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
-    delete: `    }\n`
-  })
+  const config = ignite.loadIgniteConfig()
+  helpers.updateAndroidFiles(context, name)
 
   const oldMainApplication = MAIN_APPLICATION_DOT_JAVA
   // run react-native link after we read the old file data as it will generate new faulty imports
