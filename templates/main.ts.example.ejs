@@ -1,0 +1,9 @@
+import React from 'react'
+import { Navigation } from 'react-native-navigation'
+import { singleScreenApp } from '../navigation/layouts'
+import { registerScreens } from '../navigation/ScreenRegistry'
+
+registerScreens()
+Navigation.events().registerAppLaunchedListener(() => {
+  Navigation.setRoot(singleScreenApp)
+})

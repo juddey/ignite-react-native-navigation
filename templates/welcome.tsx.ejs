@@ -1,0 +1,18 @@
+import React from "react"
+import { Text } from "react-native"
+
+export interface Props {
+  /**
+   * A simple text prop.
+   */
+  text?: string
+}
+
+class Welcome extends React.Component<Props, object> {
+  render() {
+    const { text } = this.props
+    return (<Text>{text}</Text>)
+  }
+}
+
+export default Welcome

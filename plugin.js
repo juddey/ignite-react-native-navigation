@@ -4,7 +4,11 @@ const helpers = require('./helpers')
 const NPM_MODULE_NAME = 'react-native-navigation'
 const NPM_MODULE_VERSION = '2.0.2362'
 const jetpack = require('fs-jetpack')
-const NPM_PACKAGE = jetpack.read('package.json', 'json')
+const R = require('ramda')
+const fixtures = require('./__tests__/package.json.fixture')
+const NPM_PACKAGE = process.env.NODE_ENV === 'test'
+  ? fixtures.packageJsonWithBowser
+  : jetpack.read('package.json', 'json')
 const name = NPM_PACKAGE.name
 // :point_up: This is kind of dirty from a test perspective as we're relying on
 // the tests to be run in the root directory. Better Implementations welcome!
@@ -68,8 +72,8 @@ const add = async function (context) {
     directory: `${PLUGIN_PATH}/templates`
   })
 
-  const template2 = `main.tsx.example.ejs`
-  const target2 = `/src/app/main.tsx.example`
+  const template2 = `main.ts.example.ejs`
+  const target2 = `/src/app/main.ts.example`
   const props2 = null
   await context.template.generate({
     template: template2,
@@ -105,6 +109,43 @@ const add = async function (context) {
     insert: `  [ReactNativeNavigation bootstrap:jsCodeLocation launchOptions:launchOptions];`,
     force: true
   })
+
+  // Only patch if we're on Bowser, or similar boilerplate.
+
+  if (R.keys(NPM_PACKAGE.devDependencies).includes('ignite-ir-boilerplate-bowser')) {
+    filesystem.remove('./src/app/main.tsx')
+    filesystem.remove('./src/navigation/example-navigator.ts')
+    filesystem.remove('./src/navigation/index.ts')
+    filesystem.remove('./src/navigation/root-navigator.ts')
+
+    await context.template.generate({
+      template: 'main.ts.example.ejs',
+      target: `/src/app/main.tsx`,
+      props: null,
+      directory: `${PLUGIN_PATH}/templates`
+    })
+    await context.template.generate({
+      template: 'layouts.ts.ejs',
+      target: `/src/navigation/layouts.ts`,
+      props: { name: name.toLowerCase() },
+      directory: `${PLUGIN_PATH}/templates`
+    })
+    await context.template.generate({
+      template: 'ScreenRegistry.ts.ejs',
+      target: `/src/navigation/ScreenRegistry.ts`,
+      props: { name: name.toLowerCase() },
+      directory: `${PLUGIN_PATH}/templates`
+    })
+
+    await context.template.generate({
+      template: 'welcome.tsx.ejs',
+      target: `/src/views/shared/welcome/welcome.tsx`,
+      props: null,
+      directory: `${PLUGIN_PATH}/templates`
+    })
+
+
+  }
 }
 
 /**

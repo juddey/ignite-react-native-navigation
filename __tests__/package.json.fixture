@@ -1,0 +1,33 @@
+const packageJson = { name: 'ignite-react-native-navigation',
+  description: 'Add v2 of react-native-navigation by wix to your react native project.',
+  version: '0.0.1',
+  license: 'MIT',
+  author: { name: 'Justin Lane', email: 'justin@justinlane.org' },
+  scripts:
+   { format: 'prettier-standard',
+     lint: 'standard',
+     test: 'jest',
+     watch: 'jest --watch',
+     coverage: 'jest --runInBand --coverage',
+     shipit: 'np' },
+  prettier: { semi: false, singleQuote: true },
+  standard:
+   { globals: [ 'beforeAll', 'afterAll', 'test', 'expect', 'describe' ] },
+  url: 'https://example.com/path/to/your/plugin',
+  repository: 'juddey/ignite-react-native-navigation',
+  devDependencies:
+   { 'fs-jetpack': '^1.0.0',
+     jest: '^20.0.4',
+     np: '^2.12.0',
+     prettier: '^1.13.5',
+     'prettier-standard': '^8.0.1',
+     sinon: '^2.1.7',
+     standard: '^11.0.0' } }
+ 
+const packageJsonWithBowser = { name: 'boilerplate',
+  version: '0.0.1',
+  devDependencies:
+   { 'ignite-ir-boilerplate-bowser': '^0.0.1' } 
+}
+
+ module.exports = { packageJson, packageJsonWithBowser }

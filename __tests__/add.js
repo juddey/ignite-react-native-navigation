@@ -1,26 +1,36 @@
 const sinon = require('sinon')
 const plugin = require('../plugin')
+// spy on few things so we know they're called
+const addModule = sinon.spy()
+const addPluginComponentExample = sinon.spy()
+const patchInFile = sinon.spy()
+const copy = sinon.spy()
+const read = sinon.spy()
+const name = 'boilerplate' // Same as the package.json fixture.
+const file = sinon.spy()
+const generate = sinon.spy()
+const remove = sinon.spy()
 
+// grab the package.json fixture
+const fixtures = require('./package.json.fixture')
 
+// mock a context
+const context = {
+  ignite: { addModule, addPluginComponentExample, patchInFile, loadIgniteConfig: () => {
+    return { createdWith: '2.1.0',
+    examples: 'classic',
+    navigation: 'react-navigation',
+    askToOverwrite: true,
+    generators: 
+     { component: 'ignite-ir-boilerplate-bowser',
+       screen: 'ignite-ir-boilerplate-bowser' } }
+  }
+},
+  filesystem: { copy, read, file, remove },
+  template: { generate }
+}
 
 test('adds the proper npm module, and patches relevant files', async () => {
-  // spy on few things so we know they're called
-  const addModule = sinon.spy()
-  const addPluginComponentExample = sinon.spy()
-  const patchInFile = sinon.spy()
-  const copy = sinon.spy()
-  const read = sinon.spy()
-  const name = 'ignite-react-native-navigation'
-  const file = sinon.spy()
-  const generate = sinon.spy()
-
-  // mock a context
-  const context = {
-    ignite: { addModule, addPluginComponentExample, patchInFile, loadIgniteConfig: () => {}  },
-    filesystem: { copy, read, file },
-    template: { generate }
-  }
-
   await plugin.add(context)
 
   expect(addModule.calledWith('react-native-navigation', {version: '2.0.2362', link: true})).toEqual(true)
@@ -157,5 +167,14 @@ test('adds the proper npm module, and patches relevant files', async () => {
 
   expect(patchInFile.callCount).toEqual(24)
   expect(file.callCount).toEqual(3)
-  expect(generate.callCount).toEqual(2)
+  expect(generate.callCount).toEqual(6)
+})
+
+test('patches relevant files when correct boilerplate matches', async () => {
+  // Only take actions on certain templates
+  // find out a better way of supplying package.json
+  await plugin.add(context)
+
+  // replace main.tsx
+  expect(remove.callCount).toEqual(8)
 })
