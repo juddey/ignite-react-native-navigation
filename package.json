@@ -1,7 +1,7 @@
 {
   "name": "ignite-react-native-navigation",
   "description": "Add v2 of react-native-navigation by wix to your react native project.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "author": {
     "name": "Justin Lane",
