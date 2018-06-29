@@ -3,16 +3,16 @@ const singleScreenApp = {
     stack: {
       children: [{
         component: {
-          name: '<%= props.name %>.Welcome',
+          name: "<%= props.name %>.Welcome",
           passProps: {
-            text: 'Hello, I am Awesome'
+            text: "Hello, I am Awesome"
           }
         }
       }],
       options: {
         topBar: {
           title: {
-            text: 'Welcome screen'
+            text: "Welcome screen"
           }
         }
       }
@@ -20,4 +20,16 @@ const singleScreenApp = {
   }
 }
 
-export { singleScreenApp }
+const storyBookApp = {
+  root: {
+    sideMenu: {
+    center: {
+          component: {
+            name: "<%= props.name %>.UI"
+          },
+        },
+    },
+  }
+}
+
+export { singleScreenApp, storyBookApp }

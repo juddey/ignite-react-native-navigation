@@ -1,9 +1,21 @@
-import React from 'react'
 import { Navigation } from 'react-native-navigation'
-import { singleScreenApp } from '../navigation/layouts'
+import { singleScreenApp, storyBookApp } from '../navigation/layouts'
 import { registerScreens } from '../navigation/ScreenRegistry'
+import { StorybookUIRoot } from "../../storybook"
+
+// Should we show storybook instead of our app?
+// ⚠️ Leave this as `false` when checking into git.
+const SHOW_STORYBOOK = false
+
+// appease the typescript overlords
+// This stops typescript from complaining about the 'module' keyword in our story files.
+declare global { var module }
+
+if (SHOW_STORYBOOK) { Navigation.registerComponent("<%= props.name %>.UI", () => StorybookUIRoot) }
 
 registerScreens()
 Navigation.events().registerAppLaunchedListener(() => {
-  Navigation.setRoot(singleScreenApp)
+  if (SHOW_STORYBOOK && __DEV__) {
+    Navigation.setRoot(storyBookApp)
+  } else { Navigation.setRoot(singleScreenApp) }
 })

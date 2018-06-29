@@ -16,7 +16,7 @@ const name = NPM_PACKAGE.name
 const MAIN_APPLICATION_DOT_JAVA = process.env.NODE_ENV === 'test'
   ? jetpack.read('__tests__/MainApplication.fixture.java', 'utf8')
   : jetpack.read(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainApplication.java`, 'utf8')
-// In fact, I'm now quite fond of this method! :scream: 
+// In fact, I'm now quite fond of this method! :scream:
 let APPDELEGATE_DOT_M = process.env.NODE_ENV === 'test'
   ? jetpack.read('__tests__/AppDelegate.fixture.m', 'utf8')
   : jetpack.read(`${process.cwd()}/ios/${name.toLowerCase()}/AppDelegate.m`, 'utf8')
@@ -27,7 +27,6 @@ const PLUGIN_PATH = __dirname
 const add = async function (context) {
   // Learn more about context: https://infinitered.github.io/gluegun/#/context-api.md
   const { ignite, filesystem } = context
-  const config = ignite.loadIgniteConfig()
   helpers.updateAndroidFiles(context, name)
 
   const oldMainApplication = MAIN_APPLICATION_DOT_JAVA
@@ -120,8 +119,8 @@ const add = async function (context) {
 
     await context.template.generate({
       template: 'main.ts.example.ejs',
-      target: `/src/app/main.tsx`,
-      props: null,
+      target: `/src/app/main.ts`,
+      props: { name: name.toLowerCase() },
       directory: `${PLUGIN_PATH}/templates`
     })
     await context.template.generate({
@@ -143,8 +142,6 @@ const add = async function (context) {
       props: null,
       directory: `${PLUGIN_PATH}/templates`
     })
-
-
   }
 }
 
