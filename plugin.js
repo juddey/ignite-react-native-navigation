@@ -2,7 +2,7 @@
 // ----------------------------------------------------------------------------
 const helpers = require('./helpers')
 const NPM_MODULE_NAME = 'react-native-navigation'
-const NPM_MODULE_VERSION = '2.0.2362'
+const NPM_MODULE_VERSION = '2.0.2411'
 const jetpack = require('fs-jetpack')
 const R = require('ramda')
 const fixtures = require('./__tests__/package.json.fixture')
@@ -27,6 +27,7 @@ const PLUGIN_PATH = __dirname
 const add = async function (context) {
   // Learn more about context: https://infinitered.github.io/gluegun/#/context-api.md
   const { ignite, filesystem } = context
+  const config = ignite.loadIgniteConfig()
   helpers.updateAndroidFiles(context, name)
 
   const oldMainApplication = MAIN_APPLICATION_DOT_JAVA
@@ -71,16 +72,6 @@ const add = async function (context) {
     directory: `${PLUGIN_PATH}/templates`
   })
 
-  const template2 = `main.ts.example.ejs`
-  const target2 = `/src/app/main.ts.example`
-  const props2 = null
-  await context.template.generate({
-    template: template2,
-    target: target2,
-    props: props2,
-    directory: `${PLUGIN_PATH}/templates`
-  })
-
   // iOS
   // create a backup of AppDelegate.m
   await filesystem.file(`${process.cwd()}/ios/${name.toLowerCase()}/AppDelegate.old`, { content: APPDELEGATE_DOT_M })
@@ -109,36 +100,39 @@ const add = async function (context) {
     force: true
   })
 
+  if (R.not(R.prop('navigation', config))) {
+    // Add filepaths to ignite.json, and write.
+    let jsonToWrite = R.merge(config, { navigation: 'react-native-navigation' })
+    filesystem.write('./ignite/ignite.json', jsonToWrite, {jsonIndent: 2})
+  }
+
   // Only patch if we're on Bowser, or similar boilerplate.
 
-  if (R.keys(NPM_PACKAGE.devDependencies).includes('ignite-ir-boilerplate-bowser')) {
-    filesystem.remove('./src/app/main.tsx')
-    filesystem.remove('./src/navigation/example-navigator.ts')
-    filesystem.remove('./src/navigation/index.ts')
-    filesystem.remove('./src/navigation/root-navigator.ts')
-
+  if (R.keys(NPM_PACKAGE.devDependencies).includes('ignite-ir-boilerplate-bowser') ||
+  R.keys(NPM_PACKAGE.devDependencies).includes('ignite-base-plate')) {
     await context.template.generate({
-      template: 'main.ts.example.ejs',
-      target: `/src/app/main.ts`,
+      template: 'main.js.example.ejs',
+      target: `/src/app/main.js`,
+      props: { name: name.toLowerCase() },
+      directory: `${PLUGIN_PATH}/templates`,
+      force: true
+    })
+    await context.template.generate({
+      template: 'layouts.js.ejs',
+      target: `/src/navigation/layouts.js`,
       props: { name: name.toLowerCase() },
       directory: `${PLUGIN_PATH}/templates`
     })
     await context.template.generate({
-      template: 'layouts.ts.ejs',
-      target: `/src/navigation/layouts.ts`,
-      props: { name: name.toLowerCase() },
-      directory: `${PLUGIN_PATH}/templates`
-    })
-    await context.template.generate({
-      template: 'ScreenRegistry.ts.ejs',
-      target: `/src/navigation/ScreenRegistry.ts`,
+      template: 'ScreenRegistry.js.ejs',
+      target: `/src/navigation/ScreenRegistry.js`,
       props: { name: name.toLowerCase() },
       directory: `${PLUGIN_PATH}/templates`
     })
 
     await context.template.generate({
-      template: 'welcome.tsx.ejs',
-      target: `/src/views/shared/welcome/welcome.tsx`,
+      template: 'welcome.js.ejs',
+      target: `/src/views/shared/welcome/welcome.js`,
       props: null,
       directory: `${PLUGIN_PATH}/templates`
     })

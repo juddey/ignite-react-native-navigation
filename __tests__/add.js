@@ -33,11 +33,12 @@ const context = {
 test('adds the proper npm module, and patches relevant files', async () => {
   await plugin.add(context)
 
-  expect(addModule.calledWith('react-native-navigation', {version: '2.0.2362', link: true})).toEqual(true)
+  expect(addModule.calledWith('react-native-navigation', {version: '2.0.2411', link: true})).toEqual(true)
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
     before: `mavenLocal()`,
     insert: `        google()
-        mavenCentral()`
+        mavenCentral()
+        maven { url 'https://jitpack.io' }`
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/settings.gradle`, {
@@ -55,13 +56,13 @@ test('adds the proper npm module, and patches relevant files', async () => {
   // One line, plenty of grief ;)
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
     replace: `classpath 'com.android.tools.build:gradle:2.2.3'`,
-    insert: `classpath 'com.android.tools.build:gradle:3.0.1'`
+    insert: `classpath 'com.android.tools.build:gradle:3.1.3'`
   })).toEqual(true)
 
   // app/build.gradle
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
     replace: `compileSdkVersion 23`,
-    insert: `compileSdkVersion 25`
+    insert: `compileSdkVersion 26`
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
@@ -93,6 +94,18 @@ test('adds the proper npm module, and patches relevant files', async () => {
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
+    before: `dependencies {`,
+    insert: `configurations.all {
+      resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+          def requested = details.requested
+          if (requested.group == 'com.android.support') {
+              details.useVersion "26.1.0"
+          }
+      }
+  }`
+  })).toEqual(true)
+
+  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
     replace: `compile "com.android.support:appcompat-v7:23.0.1"`,
     insert: `implementation "com.android.support:appcompat-v7:25.4.0"`
   })).toEqual(true)
@@ -106,6 +119,12 @@ test('adds the proper npm module, and patches relevant files', async () => {
     after: `implementation "com.android.support:appcompat-v7:25.4.0"`,
     insert: `    implementation project(':react-native-navigation')`
   })).toEqual(true)
+
+// Commented out because the text is never there to find.
+//  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
+//    before: `implementation "com.android.support:appcompat-v7:25.4.0"`,
+//    insert: `     implementation 'com.android.support:design:26.1.0'`
+//  })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
     replace: `    compile "com.`,
@@ -121,10 +140,11 @@ test('adds the proper npm module, and patches relevant files', async () => {
   })).toEqual(true)
 
   // android/gradle.properties
-  expect(patchInFile.calledWith(`${process.cwd()}/android/gradle.properties`, {
-    after: `android.useDeprecatedNdk=true`,
-    insert: `android.enableAapt2=false`
-  })).toEqual(true)
+  // Deprecated as of Jul-2018. Will be removed Dec-2018.
+  //  expect(patchInFile.calledWith(`${process.cwd()}/android/gradle.properties`, {
+  //   after: `android.useDeprecatedNdk=true`,
+  //   insert: `android.enableAapt2=false`
+  // })).toEqual(true)
 
   // MainActivity.java
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/src/main/java/com/${name.toLowerCase()}/MainActivity.java`, {
@@ -165,9 +185,9 @@ test('adds the proper npm module, and patches relevant files', async () => {
     force: true
   })).toEqual(true)
 
-  expect(patchInFile.callCount).toEqual(24)
+  expect(patchInFile.callCount).toEqual(25)
   expect(file.callCount).toEqual(3)
-  expect(generate.callCount).toEqual(6)
+  expect(generate.callCount).toEqual(5)
 })
 
 test('patches relevant files when correct boilerplate matches', async () => {
@@ -176,5 +196,5 @@ test('patches relevant files when correct boilerplate matches', async () => {
   await plugin.add(context)
 
   // replace main.tsx
-  expect(remove.callCount).toEqual(8)
+  expect(remove.callCount).toEqual(0)
 })

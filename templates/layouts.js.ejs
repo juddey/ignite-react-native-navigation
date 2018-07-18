@@ -1,0 +1,37 @@
+const singleScreenApp = {
+  root: {
+    stack: {
+      children: [
+        {
+          component: {
+            name: '<%= props.name %>.Welcome',
+            options: {
+              topBar: {
+                title: {
+                  text: 'Welcome!'
+                }
+              }
+            },
+            passProps: {
+              text: 'You have successfully installed React Native Navigation v2'
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+const storyBookApp = {
+  root: {
+    sideMenu: {
+      center: {
+        component: {
+          name: '<%= props.name %>.UI'
+        }
+      }
+    }
+  }
+}
+
+export { singleScreenApp, storyBookApp }
