@@ -2,7 +2,7 @@
 // ----------------------------------------------------------------------------
 const helpers = require('./helpers')
 const NPM_MODULE_NAME = 'react-native-navigation'
-const NPM_MODULE_VERSION = '2.0.2411'
+const NPM_MODULE_VERSION = '2.1.1'
 const jetpack = require('fs-jetpack')
 const R = require('ramda')
 const fixtures = require('./__tests__/package.json.fixture')

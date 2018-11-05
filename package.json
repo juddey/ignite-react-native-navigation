@@ -28,17 +28,17 @@
       "describe"
     ]
   },
-  "url": "https://example.com/path/to/your/plugin",
+  "url": "https://github.com/juddey/ignite-react-native-navigation",
   "repository": "juddey/ignite-react-native-navigation",
   "dependencies": {
-    "fs-jetpack": "^1.0.0"
+    "fs-jetpack": "^1.0.0",
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "jest": "^20.0.4",
     "np": "^2.12.0",
     "prettier": "^1.13.5",
     "prettier-standard": "^8.0.1",
-    "ramda": "^0.25.0",
     "sinon": "^2.1.7",
     "standard": "^11.0.0"
   }

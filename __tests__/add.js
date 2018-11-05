@@ -33,7 +33,7 @@ const context = {
 test('adds the proper npm module, and patches relevant files', async () => {
   await plugin.add(context)
 
-  expect(addModule.calledWith('react-native-navigation', {version: '2.0.2411', link: true})).toEqual(true)
+  expect(addModule.calledWith('react-native-navigation', {version: '2.1.1', link: true})).toEqual(true)
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
     before: `mavenLocal()`,
     insert: `        google()
