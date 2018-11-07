@@ -34,10 +34,11 @@ test('adds the proper npm module, and patches relevant files', async () => {
   await plugin.add(context)
 
   expect(addModule.calledWith('react-native-navigation', {version: '2.1.1', link: true})).toEqual(true)
+
+  // build.gradle
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
     before: `mavenLocal()`,
-    insert: `        google()
-        mavenCentral()
+    insert: `        mavenCentral()
         maven { url 'https://jitpack.io' }`
   })).toEqual(true)
 
@@ -48,41 +49,19 @@ test('adds the proper npm module, and patches relevant files', async () => {
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
     after: `repositories {`,
-    insert: `        google()
-        mavenLocal()
+    insert: `        mavenLocal()
         mavenCentral()`
   })).toEqual(true)
 
-  // One line, plenty of grief ;)
   expect(patchInFile.calledWith(`${process.cwd()}/android/build.gradle`, {
-    replace: `classpath 'com.android.tools.build:gradle:2.2.3'`,
-    insert: `classpath 'com.android.tools.build:gradle:3.1.3'`
+    replace: `minSdkVersion = 16`,
+    insert: `minSdkVersion = 19`
   })).toEqual(true)
 
   // app/build.gradle
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `compileSdkVersion 23`,
-    insert: `compileSdkVersion 26`
-  })).toEqual(true)
-
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `buildToolsVersion "23.0.1"`,
-    insert: `buildToolsVersion "27.0.3"`
-  })).toEqual(true)
-
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `minSdkVersion 16`,
-    insert: `minSdkVersion 19`
-  })).toEqual(true)
-
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `targetSdkVersion 22`,
-    insert: `targetSdkVersion 25`
-  })).toEqual(true)
-
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `targetSdkVersion 25`,
-    insert: `missingDimensionStrategy "RNN.reactNativeVersion", "reactNative55"`
+    after: `targetSdkVersion rootProject.ext.targetSdkVersion`,
+    insert: `        missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57"`
   })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
@@ -93,49 +72,31 @@ test('adds the proper npm module, and patches relevant files', async () => {
     }`
   })).toEqual(true)
 
+const supportLibString = "${rootProject.ext.supportLibVersion}"
+
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
     before: `dependencies {`,
     insert: `configurations.all {
       resolutionStrategy.eachDependency { DependencyResolveDetails details ->
           def requested = details.requested
-          if (requested.group == 'com.android.support') {
-              details.useVersion "26.1.0"
+          if (requested.group == 'com.android.support' && requested.name  != 'mulitdex' ) {
+              details.useVersion "${supportLibString}"
           }
       }
   }`
   })).toEqual(true)
 
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `compile "com.android.support:appcompat-v7:23.0.1"`,
-    insert: `implementation "com.android.support:appcompat-v7:25.4.0"`
-  })).toEqual(true)
 
   expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `compile fileTree(dir: "libs", include: ["*.jar"])`,
-    insert: `implementation fileTree(dir: "libs", include: ["*.jar"])`
-  })).toEqual(true)
-
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    after: `implementation "com.android.support:appcompat-v7:25.4.0"`,
-    insert: `    implementation project(':react-native-navigation')`
-  })).toEqual(true)
-
-// Commented out because the text is never there to find.
-//  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-//    before: `implementation "com.android.support:appcompat-v7:25.4.0"`,
-//    insert: `     implementation 'com.android.support:design:26.1.0'`
-//  })).toEqual(true)
-
-  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
-    replace: `    compile "com.`,
-    insert: `    implementation "com.`,
+    after: `implementation "com.android.support:appcompat-v7:`,
+    insert: `    implementation 'com.android.support:design:26.1.0'`,
     force: true
   })).toEqual(true)
 
-  // android/gradle/wrapper/gradle-wrapper.properties
-  expect(patchInFile.calledWith(`${process.cwd()}/android/gradle/wrapper/gradle-wrapper.properties`, {
-    replace: 'gradle-2.14.1-all.zip',
-    insert: 'gradle-4.4-all.zip',
+
+  expect(patchInFile.calledWith(`${process.cwd()}/android/app/build.gradle`, {
+    after: `implementation "com.android.support:appcompat-v7:`,
+    insert: `    implementation project(':react-native-navigation')`,
     force: true
   })).toEqual(true)
 
@@ -173,6 +134,13 @@ test('adds the proper npm module, and patches relevant files', async () => {
     delete: `    }\n`
   })).toEqual(true)
 
+  expect(patchInFile.calledWith(
+    `${process.cwd()}/package.json`, {
+    after: `"scripts": {`,
+    insert: `  "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug", `
+  })).toEqual(true)
+
+
   // iOS
   expect(patchInFile.calledWith(`${process.cwd()}/ios/${name.toLowerCase()}/AppDelegate.m`, {
     after: '#import <React/RCTBundleURLProvider.h>',
@@ -185,7 +153,8 @@ test('adds the proper npm module, and patches relevant files', async () => {
     force: true
   })).toEqual(true)
 
-  expect(patchInFile.callCount).toEqual(25)
+  
+  expect(patchInFile.callCount).toEqual(18)
   expect(file.callCount).toEqual(3)
   expect(generate.callCount).toEqual(5)
 })

@@ -28,6 +28,8 @@ const add = async function (context) {
   // Learn more about context: https://infinitered.github.io/gluegun/#/context-api.md
   const { ignite, filesystem } = context
   const config = ignite.loadIgniteConfig()
+  const functionTemplate = (config) =>  (R.path(['ignite-base-plate', 'format'], config) === 'function') == true
+
   helpers.updateAndroidFiles(context, name)
 
   const oldMainApplication = MAIN_APPLICATION_DOT_JAVA
@@ -112,27 +114,27 @@ const add = async function (context) {
   R.keys(NPM_PACKAGE.devDependencies).includes('ignite-base-plate')) {
     await context.template.generate({
       template: 'main.js.example.ejs',
-      target: `/src/app/main.js`,
-      props: { name: name.toLowerCase() },
+      target:  functionTemplate(config) ? `/src/App/main.js` : `/src/app/main.js`,
+      props: { name: name.toLowerCase(), navPath: functionTemplate(config) ?  'Navigation' : 'navigation' },
       directory: `${PLUGIN_PATH}/templates`,
       force: true
     })
     await context.template.generate({
       template: 'layouts.js.ejs',
-      target: `/src/navigation/layouts.js`,
+      target: functionTemplate(config) ? `/src/Navigation/layouts.js` : `/src/navigation/layouts.js`,
       props: { name: name.toLowerCase() },
       directory: `${PLUGIN_PATH}/templates`
     })
     await context.template.generate({
       template: 'ScreenRegistry.js.ejs',
-      target: `/src/navigation/ScreenRegistry.js`,
-      props: { name: name.toLowerCase() },
+      target: functionTemplate(config) ? `/src/Navigation/ScreenRegistry.js` : `/src/navigation/ScreenRegistry.js`,
+      props: { name: name.toLowerCase(), location: functionTemplate(config) ? '/App/Components' : '/views/shared/welcome'},
       directory: `${PLUGIN_PATH}/templates`
     })
 
     await context.template.generate({
       template: 'welcome.js.ejs',
-      target: `/src/views/shared/welcome/welcome.js`,
+      target: functionTemplate(config) ?  `/src/App/Components/welcome.js` : `/src/views/shared/welcome/welcome.js`,
       props: null,
       directory: `${PLUGIN_PATH}/templates`
     })

@@ -2,10 +2,10 @@ package com.<%= props.packageName %>;
 
 <%= props.imports %>
 
-import com.facebook.react.uimanager.UIImplementationProvider;
+// import com.facebook.react.uimanager.UIImplementationProvider;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.react.NavigationReactNativeHost;
-import com.reactnativenavigation.react.SyncUiImplementation;
+import com.reactnativenavigation.react.ReactGateway;
 
 public class MainApplication extends NavigationApplication {
 
@@ -21,24 +21,26 @@ public class MainApplication extends NavigationApplication {
   }
 
   @Override
-  protected ReactNativeHost createReactNativeHost() {
-      return new NavigationReactNativeHost(this) {
+  protected ReactGateway createReactGateway() {
+      ReactNativeHost host = new NavigationReactNativeHost(this, isDebug(), createAdditionalReactPackages()) {
           @Override
           protected String getJSMainModuleName() {
               return "index";
           }
-
-          @Override
-          protected UIImplementationProvider getUIImplementationProvider() {
-              return new SyncUiImplementation.Provider();
-          }
       };
+      return new ReactGateway(this, isDebug(), host);
   }
+
+  protected List<ReactPackage> getPackages() {
+        // Add additional packages you require here
+        // No need to add RnnPackage and MainReactPackage
+        return Arrays.<ReactPackage>asList(
+            <%= props.packages %>
+        );
+    }  
 
   @Override
   public List<ReactPackage> createAdditionalReactPackages() {
-    return Arrays.<ReactPackage>asList(
-        <%= props.packages %>
-    );
+    return getPackages();
   }
 }

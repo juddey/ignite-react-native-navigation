@@ -1,7 +1,7 @@
 import { Navigation } from 'react-native-navigation'
-import Welcome from '../views/shared/welcome/welcome'
+import Welcome from '..<%= props.location %>/welcome'
 
 function registerScreens () {
-  Navigation.registerComponent('chapel.Welcome', () => Welcome)
+  Navigation.registerComponent('<%= props.name %>.Welcome', () => Welcome)
 }
 export { registerScreens }
